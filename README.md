@@ -1,12 +1,90 @@
 # precompiled_nif_rust_centos_8_x86_64
 
-A repository to hold pre-compiled NIFs (Native Implemented Functions) for Elixir projects using Rust, specifically built for CentOS 8 x86_64.
+A repository to hold pre-compiled NIFs (Native Implemented Functions) for [Explorer](https://github.com/elixir-nx/explorer) on CentOS 8 x86_64.
 
 ## Overview
 
 This repository uses [rustler_precompiled](https://github.com/philss/rustler_precompiled) (v0.7.0) to precompile NIFs and host them as GitHub releases. This speeds up build times by avoiding the need to compile Rust code on every deployment.
 
-This template is designed for building NIFs for projects like [Explorer](https://github.com/elixir-nx/explorer), which uses [Polars](https://github.com/pola-rs/polars) - a fast DataFrame library written in Rust.
+Explorer uses [Polars](https://github.com/pola-rs/polars) - a fast DataFrame library written in Rust.
+
+## GitHub Release Structure
+
+### Release Tag
+
+Release tags must match the Explorer version. For Explorer `~> 0.11.0`:
+
+```
+v0.11.0
+```
+
+### Release Assets
+
+Each release contains tar.gz files named according to this pattern:
+
+```
+explorer-nif-{nif_version}-{target}.tar.gz
+```
+
+For CentOS 8 (x86_64):
+
+```
+explorer-nif-2.15-x86_64-unknown-linux-gnu.tar.gz
+```
+
+### Inside the tar.gz
+
+The archive contains:
+
+```
+native/libexplorer.so
+```
+
+This is the compiled NIF library for CentOS 8.
+
+## How RustlerPrecompiled Downloads
+
+When building on CentOS 8, RustlerPrecompiled will:
+
+1. Detect the target platform (`x86_64-unknown-linux-gnu`)
+2. Detect the NIF version (e.g., `2.15`)
+3. Construct the URL:
+   ```
+   https://github.com/JBulloch/precompiled_nif_rust_centos_8_x86_64/releases/download/v0.11.0/explorer-nif-2.15-x86_64-unknown-linux-gnu.tar.gz
+   ```
+4. Download and extract the precompiled `.so` file
+5. Skip Rust compilation entirely
+
+## Building Precompiled NIFs Manually
+
+To create precompiled files on a CentOS 8 machine:
+
+```bash
+# 1. Clone Explorer and navigate to the native code
+cd deps/explorer/native/explorer
+cargo build --release
+
+# 2. Package the library
+mkdir -p native
+cp target/release/libexplorer.so native/
+tar -czf explorer-nif-2.15-x86_64-unknown-linux-gnu.tar.gz native/
+
+# 3. Upload to GitHub release v0.11.0
+```
+
+## Automated Release Process
+
+The GitHub Actions workflow automatically builds and releases NIFs when a tag is pushed:
+
+```bash
+git tag v0.11.0
+git push origin v0.11.0
+```
+
+The workflow will:
+1. Build the NIF for `x86_64-unknown-linux-gnu` (CentOS 8 compatible)
+2. Package it as `explorer-nif-2.15-x86_64-unknown-linux-gnu.tar.gz`
+3. Upload the compiled artifacts as release assets
 
 ## Project Structure
 
@@ -25,64 +103,20 @@ This template is designed for building NIFs for projects like [Explorer](https:/
 └── README.md
 ```
 
-## Usage
+## Usage in Your Elixir Project
 
-### In your Elixir project
-
-Add this repository's releases to your `rustler_precompiled` configuration:
+Configure your project to use these precompiled NIFs:
 
 ```elixir
 defmodule YourProject.Native do
   use RustlerPrecompiled,
-    otp_app: :your_app,
+    otp_app: :explorer,
     crate: "explorer",
     base_url: "https://github.com/JBulloch/precompiled_nif_rust_centos_8_x86_64/releases/download/v#{version}",
     force_build: System.get_env("EXPLORER_BUILD") in ["1", "true"],
     version: version
 end
 ```
-
-### Building locally
-
-If you need to build the NIF locally:
-
-```bash
-# Install Elixir dependencies
-mix deps.get
-
-# Build the native code
-cd native/explorer
-cargo build --release
-```
-
-### Adding Polars dependencies
-
-To use Polars in your NIF, update `native/explorer/Cargo.toml` to include:
-
-```toml
-[dependencies.polars]
-version = "0.49"
-default-features = false
-features = [
-  "lazy",
-  "csv",
-  "parquet",
-  # Add other features as needed
-]
-```
-
-## Release Process
-
-NIFs are automatically built and released when a new tag is pushed:
-
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-The GitHub Actions workflow will:
-1. Build the NIF for x86_64-unknown-linux-gnu (CentOS 8 compatible)
-2. Upload the compiled artifacts as release assets
 
 ## Supported Targets
 

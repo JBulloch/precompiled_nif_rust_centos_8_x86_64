@@ -1,7 +1,7 @@
 defmodule Explorer.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.11.0"
   @source_url "https://github.com/JBulloch/precompiled_nif_rust_centos_8_x86_64"
 
   def project do

@@ -4,6 +4,9 @@ defmodule Explorer.Native do
 
   This module loads pre-compiled native binaries for Explorer/Polars,
   specifically built for CentOS 8 x86_64.
+
+  The release URL follows the pattern:
+  `https://github.com/JBulloch/precompiled_nif_rust_centos_8_x86_64/releases/download/v{version}/explorer-nif-{nif_version}-{target}.tar.gz`
   """
 
   version = Mix.Project.config()[:version]
