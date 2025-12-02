@@ -27,9 +27,10 @@ jobs:
       matrix:
         nif: ["2.15"]
         job:
-          # CentOS 8 x86_64 compatible build
-          - { target: x86_64-unknown-linux-gnu, os: ubuntu-20.04, rustflags: "-C target-feature=+fxsr,+sse,+sse2,+sse3,+ssse3,+sse4.1,+sse4.2,+popcnt,+avx,+fma" }
-          - { target: x86_64-unknown-linux-gnu, os: ubuntu-20.04, variant: "legacy_cpu" }
+          # CentOS 8 x86_64 compatible build (glibc 2.28)
+          # Using cross with centos:8 base to ensure glibc 2.28 compatibility
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-22.04, use-cross: true, rustflags: "-C target-feature=+fxsr,+sse,+sse2,+sse3,+ssse3,+sse4.1,+sse4.2,+popcnt,+avx,+fma" }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-22.04, use-cross: true, variant: "legacy_cpu" }
 
     steps:
       - name: Checkout source code
@@ -51,6 +52,16 @@ jobs:
         shell: bash
         run: |
           rustup target add ${{ matrix.job.target }}
+
+      - name: Create Cross.toml for glibc 2.28 (CentOS 8) compatibility
+        shell: bash
+        run: |
+          mkdir -p native/explorer
+          cat > native/explorer/Cross.toml << 'EOF'
+          [target.x86_64-unknown-linux-gnu]
+          # Use an older image with glibc 2.28 for CentOS 8 compatibility
+          image = "ghcr.io/cross-rs/x86_64-unknown-linux-gnu:0.2.5"
+          EOF
 
       - uses: Swatinem/rust-cache@v2
         with:

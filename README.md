@@ -8,6 +8,10 @@ This repository uses [rustler_precompiled](https://github.com/philss/rustler_pre
 
 Explorer uses [Polars](https://github.com/pola-rs/polars) - a fast DataFrame library written in Rust.
 
+### Why This Repository?
+
+The default Explorer precompiled NIFs require glibc 2.29+, but **CentOS 8 only has glibc 2.28**. This repository builds NIFs with glibc 2.28 compatibility using cross-compilation with an older base image.
+
 ## GitHub Release Structure
 
 ### Release Tag
@@ -40,7 +44,7 @@ The archive contains:
 native/libexplorer.so
 ```
 
-This is the compiled NIF library for CentOS 8.
+This is the compiled NIF library for CentOS 8 (glibc 2.28 compatible).
 
 ## How RustlerPrecompiled Downloads
 
@@ -82,9 +86,13 @@ git push origin v0.11.0
 ```
 
 The workflow will:
-1. Build the NIF for `x86_64-unknown-linux-gnu` (CentOS 8 compatible)
+1. Build the NIF using `cross` with an older glibc (2.28 compatible) base image
 2. Package it as `explorer-nif-2.15-x86_64-unknown-linux-gnu.tar.gz`
 3. Upload the compiled artifacts as release assets
+
+### glibc 2.28 Compatibility
+
+The build uses `cross-rs` with a Docker image that has glibc 2.28 to ensure compatibility with CentOS 8. This is configured via `Cross.toml` generated during the build.
 
 ## Project Structure
 
@@ -120,14 +128,14 @@ end
 
 ## Supported Targets
 
-- `x86_64-unknown-linux-gnu` (CentOS 8 x86_64)
+- `x86_64-unknown-linux-gnu` (CentOS 8 x86_64, glibc 2.28)
   - Default build with AVX/FMA optimizations
   - Legacy CPU variant for older processors
 
 ## Requirements
 
+- CentOS 8 or compatible (glibc 2.28)
 - Elixir ~> 1.14
-- Rust (latest stable)
 - rustler_precompiled ~> 0.7
 
 ## License
