@@ -31,4 +31,3 @@ fn hello() -> &'static str {
 }
 
 rustler::init!("Elixir.Explorer.Native");
-
