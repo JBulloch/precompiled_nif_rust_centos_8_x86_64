@@ -1,0 +1,24 @@
+[package]
+name = "explorer"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "explorer"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = { version = "0.36" }
+
+# MiMalloc won't compile on Windows with the GCC compiler.
+# On Linux with Musl it won't load correctly.
+[target.'cfg(not(any(all(windows, target_env = "gnu"), all(target_os = "linux", target_env = "musl"))))'.dependencies]
+mimalloc = { version = "0.1", default-features = false }
+
+[features]
+default = ["nif_version_2_15"]
+
+# Feature necessary for Rustler Precompiled.
+nif_version_2_15 = ["rustler/nif_version_2_15"]
