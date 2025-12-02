@@ -8,7 +8,7 @@ defmodule Explorer.MixProject do
     [
       app: :explorer,
       version: @version,
-      elixir: "~> 1.14",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       description: "Pre-compiled NIF for Explorer/Polars on CentOS 8 x86_64",
       package: package(),
