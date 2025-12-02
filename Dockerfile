@@ -8,8 +8,11 @@
 #   docker build --build-arg SANDBOX_IMAGE=your-sandbox-image:tag -t nif-builder .
 #   docker run --rm -v $(pwd):/app -w /app nif-builder
 
-ARG SANDBOX_IMAGE
-FROM ${SANDBOX_IMAGE:?SANDBOX_IMAGE build argument is required}
+ARG SANDBOX_IMAGE=iberonllc/frontend_all-sandbox:latest
+FROM ${SANDBOX_IMAGE}
+
+# Install build dependencies
+RUN yum install -y gcc gcc-c++ make
 
 # Install Rust toolchain
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
