@@ -135,8 +135,28 @@ end
 ## Requirements
 
 - CentOS 8 or compatible (glibc 2.28)
-- Elixir ~> 1.14
+- Erlang 27.3.4
+- Elixir 1.18.4-otp-27
 - rustler_precompiled ~> 0.7
+
+## Building with Docker
+
+A Dockerfile is provided that uses your sandbox container as a base image to ensure glibc compatibility:
+
+```bash
+# Build the Docker image using your sandbox container as base
+docker build --build-arg SANDBOX_IMAGE=your-sandbox-image:tag -t nif-builder .
+
+# Run the build
+docker run --rm -v $(pwd):/app -w /app nif-builder
+
+# Or build interactively
+docker run --rm -it -v $(pwd):/app -w /app nif-builder bash
+cd native/explorer
+cargo build --release
+```
+
+The resulting `libexplorer.so` will be in `native/explorer/target/release/`.
 
 ## License
 
